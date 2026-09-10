@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#120710" />
+<title>臭蒙 · 想你想你</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='%23ff6b9d'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg-0:#120710;
+  --bg-1:#2b0e1f;
+  --rose:#ff6b9d;
+  --rose-2:#ff9ebb;
+  --rose-3:#ffd3de;
+  --gold:#f2c99a;
+  --ink:#fff4ee;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Noto Serif SC','Songti SC','SimSun',serif;
+  background:
+    radial-gradient(120% 90% at 50% 112%, #47122e 0%, transparent 58%),
+    radial-gradient(85% 62% at 50% -12%, #33122a 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1) 58%, #180812);
+  color:var(--ink);
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='%23ff6b9d' stroke='%23ffd3de' stroke-width='1'/%3E%3C/svg%3E") 13 13, auto;
+}
+
+/* ---------- 画布 ---------- */
+#sky{position:fixed;inset:0;z-index:0;display:block}
+
+/* ---------- 弹出的「想你想你」 ---------- */
+#pops{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none}
+.pop{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  white-space:nowrap;
+  font-family:'Noto Serif SC','Songti SC',serif;
+  font-weight:600;
+  letter-spacing:.1em;
+  color:#ffd9e3;
+  will-change:transform,opacity;
+  animation:popLife var(--d,3s) cubic-bezier(.22,.9,.32,1) forwards;
+}
+@keyframes popLife{
+  0%  {transform:translate(-50%,-50%) scale(.1) rotate(var(--r,0deg));opacity:0}
+  10% {transform:translate(-50%,-50%) scale(1.16) rotate(var(--r,0deg));opacity:1}
+  22% {transform:translate(-50%,-50%) scale(1) rotate(var(--r,0deg))}
+  72% {opacity:1}
+  100%{transform:translate(-50%,-80%) scale(1.05) rotate(var(--r,0deg));opacity:0}
+}
+.pop--script{font-family:'Ma Shan Zheng','STKaiti','KaiTi',cursive;font-weight:400;letter-spacing:.06em}
+.pop--outline{color:transparent;-webkit-text-stroke:1.2px var(--rose-2)}
+.pop--glow{color:#ffe6ee;text-shadow:0 0 14px rgba(255,107,157,.9),0 0 38px rgba(255,107,157,.5)}
+.pop--gold{font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;color:var(--gold);letter-spacing:.35em;font-weight:400}
+.pop--pill{
+  background:rgba(255,107,157,.12);
+  border:1px solid rgba(255,158,187,.42);
+  border-radius:999px;
+  padding:.3em .85em;
+  color:var(--rose-3);
+  -webkit-backdrop-filter:blur(4px);
+  backdrop-filter:blur(4px);
+  letter-spacing:.14em;
+}
+.pop--moment{
+  font-family:'Ma Shan Zheng','STKaiti','KaiTi',cursive;
+  font-weight:400;
+  color:#fff0f5;
+  text-shadow:0 0 20px rgba(255,107,157,.95),0 0 70px rgba(255,83,140,.65);
+  letter-spacing:.08em;
+}
+
+/* ---------- 中央主角 ---------- */
+.hero{
+  position:fixed;inset:0;z-index:3;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;pointer-events:none;
+}
+.eyebrow{
+  display:flex;align-items:center;gap:16px;
+  font-size:clamp(11px,1.6vw,14px);
+  letter-spacing:.52em;text-indent:.52em;
+  color:#ffb1c9;font-weight:300;
+  animation:fadeIn 1s .9s backwards;
+}
+.eyebrow .ln{width:54px;height:1px;background:linear-gradient(90deg,transparent,#ffb1c9)}
+.eyebrow .ln:last-child{transform:scaleX(-1)}
+.stage{position:relative;display:flex;justify-content:center;margin:1.5vh 0 0}
+.glow{
+  position:absolute;top:50%;left:50%;
+  width:74vmin;height:46vmin;
+  translate:-50% -50%;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(255,83,140,.34),rgba(255,83,140,.08) 55%,transparent 75%);
+  animation:breathe 3.2s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes breathe{from{opacity:.5;scale:1}to{opacity:.95;scale:1.13}}
+.name{
+  position:relative;
+  font-family:'Ma Shan Zheng','STKaiti','KaiTi',cursive;
+  font-size:clamp(88px,19vw,230px);
+  line-height:1.08;
+  background:linear-gradient(172deg,#ffe9f0 4%,#ff9ebb 48%,#f2538a 92%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  filter:drop-shadow(0 10px 42px rgba(242,83,138,.38));
+  animation:fadeIn 1.4s .35s backwards, heartbeat 1.7s 1.8s infinite;
+}
+@keyframes heartbeat{
+  0%,100%{transform:scale(1)}
+  12%{transform:scale(1.065)}
+  24%{transform:scale(1)}
+  36%{transform:scale(1.045)}
+  50%{transform:scale(1)}
+}
+.orbit{
+  position:absolute;top:50%;left:50%;
+  translate:-50% -50%;
+  border:1px dashed rgba(255,158,187,.17);
+  border-radius:50%;
+  pointer-events:none;
+}
+.o1{width:52vmin;height:52vmin;animation:spin 26s linear infinite}
+.o2{width:72vmin;height:72vmin;animation:spin 38s linear infinite reverse;border-color:rgba(255,158,187,.1)}
+.o3{width:38vmin;height:38vmin;animation:spin 19s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orb-heart{
+  position:absolute;top:-10px;left:50%;
+  translate:-50% 0;
+  display:block;
+  filter:drop-shadow(0 0 7px rgba(255,107,157,.95));
+}
+.o1 .orb-heart{animation:spin 26s linear infinite reverse}
+.o2 .orb-heart{animation:spin 38s linear infinite}
+.o3 .orb-heart{animation:spin 19s linear infinite reverse}
+
+.sub{margin-top:2.2vh;font-weight:300;letter-spacing:.32em;white-space:pre;animation:floaty 5.5s ease-in-out 3.2s infinite}
+.sub span{
+  display:inline-block;opacity:0;
+  font-size:clamp(14px,2.4vw,22px);
+  color:rgba(255,203,219,.92);
+  animation:riseIn .9s cubic-bezier(.2,.7,.3,1) forwards;
+  animation-delay:calc(var(--i) * .085s + 1.15s);
+}
+@keyframes riseIn{
+  from{opacity:0;transform:translateY(22px);filter:blur(6px)}
+  to{opacity:1;transform:none;filter:none}
+}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.quote{
+  margin-top:3.4vh;min-height:1.8em;
+  font-size:clamp(13px,1.9vw,17px);
+  color:rgba(255,214,226,.78);
+  letter-spacing:.16em;font-weight:300;
+  animation:fadeIn 1.2s 1.9s backwards;
+  transition:opacity .55s ease,transform .55s ease;
+}
+.quote.q-fade{opacity:0;transform:translateY(8px)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ---------- 底部信息 ---------- */
+.hud{
+  position:fixed;left:0;right:0;bottom:24px;z-index:3;
+  display:grid;gap:9px;justify-items:center;text-align:center;
+  pointer-events:none;
+  animation:fadeIn 1s 2.5s backwards;
+}
+.timer{
+  display:flex;align-items:center;gap:10px;
+  font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;
+  font-size:clamp(13px,1.8vw,17px);
+  letter-spacing:.22em;color:rgba(255,211,222,.9);
+}
+.timer .th{animation:heartbeat 1.3s infinite;filter:drop-shadow(0 0 8px rgba(255,107,157,.9))}
+.timer b{font-weight:400;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.14em}
+.stats{font-size:clamp(11px,1.5vw,13px);letter-spacing:.3em;color:rgba(255,177,201,.55);font-weight:300}
+.stats b{font-weight:400;color:var(--rose-2)}
+.hint{font-size:clamp(10px,1.4vw,12px);letter-spacing:.42em;text-indent:.42em;color:rgba(255,177,201,.4);font-weight:300}
+
+/* ---------- 心跳音效按钮 ---------- */
+.sound{
+  position:fixed;top:18px;right:18px;z-index:5;
+  width:46px;height:46px;border-radius:50%;
+  display:grid;place-items:center;
+  border:1px solid rgba(255,158,187,.35);
+  background:rgba(255,107,157,.08);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+  color:var(--rose-3);
+  cursor:pointer;
+  transition:background .3s,transform .3s;
+  animation:fadeIn 1s 2.8s backwards;
+}
+.sound:hover{background:rgba(255,107,157,.2);transform:scale(1.08)}
+.sound.on{background:rgba(255,107,157,.24);border-color:var(--rose-2)}
+.sound.on svg{animation:heartbeat 1.1s infinite}
+
+/* ---------- 颗粒质感 ---------- */
+.grain{
+  position:fixed;inset:0;z-index:4;pointer-events:none;
+  opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* ---------- 开场帷幕 ---------- */
+#veil{
+  position:fixed;inset:0;z-index:9;pointer-events:none;
+  background:linear-gradient(180deg,#120710,#1d0a15);
+  display:grid;place-items:center;
+  animation:veilOut 2.4s .85s forwards;
+}
+.veil-inner{display:grid;justify-items:center;gap:18px}
+.veil-inner svg{filter:drop-shadow(0 0 16px rgba(255,107,157,.9));animation:heartbeat 1.1s infinite}
+.veil-inner p{
+  font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;
+  font-size:clamp(13px,2vw,16px);
+  letter-spacing:.5em;text-indent:.5em;
+  color:rgba(255,211,222,.75);
+}
+@keyframes veilOut{
+  0%{opacity:1}
+  62%{opacity:1}
+  100%{opacity:0;visibility:hidden}
+}
+
+@media (max-width:600px){
+  .eyebrow .ln{width:30px}
+  .hud{bottom:18px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+<div id="pops"></div>
+
+<main class="hero">
+  <div class="eyebrow"><i class="ln"></i><span>TO · 臭蒙</span><i class="ln"></i></div>
+  <div class="stage">
+    <div class="glow"></div>
+    <h1 class="name">
+      <span class="orbit o1"><i class="orb-heart">
+        <svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ff7fa8" stroke="#ffd3de" stroke-width=".8"/></svg>
+      </i></span>
+      <span class="orbit o2"><i class="orb-heart">
+        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ff9ebb" stroke="#ffd3de" stroke-width=".8"/></svg>
+      </i></span>
+      <span class="orbit o3"><i class="orb-heart">
+        <svg viewBox="0 0 24 24" width="19" height="19"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ff5c8a" stroke="#ffd3de" stroke-width=".8"/></svg>
+      </i></span>
+      臭蒙
+    </h1>
+  </div>
+  <p class="sub" id="sub" data-text="想你想你 · 还是想你想你"></p>
+  <p class="quote" id="quote">今晚的月亮很圆，但我更想你。</p>
+</main>
+
+<div class="hud">
+  <div class="timer">
+    <svg class="th" viewBox="0 0 24 24" width="15" height="15"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ff6b9d"/></svg>
+    <span>臭蒙 · 我已经想你了 <b id="clock">00:00:00</b></span>
+  </div>
+  <div class="stats">已为你弹出 <b id="beat">0</b> 颗心 · 想念仍在继续</div>
+  <div class="hint">轻点屏幕 · 把想念放出来</div>
+</div>
+
+<button class="sound" id="sound" aria-label="心跳音效" title="点我 · 听心跳">
+  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>
+</button>
+
+<div class="grain"></div>
+
+<div id="veil">
+  <div class="veil-inner">
+    <svg viewBox="0 0 24 24" width="44" height="44"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ff6b9d"/></svg>
+    <p>正在打开满屏想念</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $ = s => document.querySelector(s);
+const rand = (a,b) => a + Math.random()*(b-a);
+const pick = a => a[(Math.random()*a.length)|0];
+const TAU = Math.PI*2;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= 画布粒子引擎 ================= */
+const canvas = $('#sky'), ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+let stars = [], dust = [], hearts = [], bursts = [], ripples = [], shoot = null;
+let shootIn = rand(4,8), beat = 0;
+const PALETTE = ['#ff5c8a','#ff7fa8','#ff9ebb','#ffb7cd','#ffd3de'];
+
+function resize(){
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  W = innerWidth; H = innerHeight;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  stars = [];
+  const n = Math.round(Math.min(110, W*H/14000));
+  for(let i=0;i<n;i++) stars.push({x:Math.random()*W, y:Math.random()*H, r:rand(.4,1.5), ph:rand(0,TAU), sp:rand(.5,1.8)});
+  dust = [];
+  for(let i=0;i<36;i++) dust.push({x:Math.random()*W, y:Math.random()*H, r:rand(.6,1.8), v:rand(6,16), a:rand(.05,.2)});
+}
+addEventListener('resize', resize);
+resize();
+
+function heartPath(s){
+  const w=s, h=s*.92, top=h*.3, y=-h/2;
+  ctx.beginPath();
+  ctx.moveTo(0, y+top);
+  ctx.bezierCurveTo(0, y, -w/2, y, -w/2, y+top);
+  ctx.bezierCurveTo(-w/2, y+(h+top)/2, 0, y+(h+top)/2, 0, y+h);
+  ctx.bezierCurveTo(0, y+(h+top)/2, w/2, y+(h+top)/2, w/2, y+top);
+  ctx.bezierCurveTo(w/2, y, 0, y, 0, y+top);
+  ctx.closePath();
+}
+function drawHeart(x,y,s,rot,a,c,glow){
+  ctx.save();
+  ctx.translate(x,y); ctx.rotate(rot);
+  ctx.globalAlpha = a;
+  if(glow){ ctx.shadowColor = c; ctx.shadowBlur = s*1.2; }
+  ctx.fillStyle = c;
+  heartPath(s); ctx.fill();
+  ctx.restore();
+}
+
+/* 从底部升起的心 */
+function spawnHeart(){
+  if(hearts.length > 150) return;
+  const big = Math.random() < .12;
+  hearts.push({
+    bx: rand(0,W), y: H+34,
+    s: big ? rand(26,44) : rand(7,26),
+    vy: big ? rand(20,42) : rand(32,80),
+    amp: rand(8,42), ph: rand(0,TAU), sw: rand(.6,1.6),
+    rot: rand(-.35,.35), vr: rand(-.6,.6),
+    c: pick(PALETTE), glow: Math.random()<.32,
+    t: 0
+  });
+  beat++;
+}
+
+/* 点击迸发 */
+function burst(x,y,n){
+  for(let i=0;i<n;i++){
+    const ang = rand(0,TAU), sp = rand(60,300);
+    bursts.push({x, y, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp-70,
+      s:rand(5,16), rot:rand(0,TAU), vr:rand(-3,3),
+      c:pick(PALETTE), t:0, max:rand(.8,1.4), g:320});
+    beat++;
+  }
+  ripples.push({x, y, r:6, a:.6});
+}
+/* 鼠标尾迹小爱心 */
+function trail(x,y){
+  if(bursts.length > 160) return;
+  bursts.push({x, y, vx:rand(-24,24), vy:rand(-70,-30),
+    s:rand(4,9), rot:rand(-.5,.5), vr:rand(-2,2),
+    c:pick(PALETTE), t:0, max:.75, g:0});
+  beat++;
+}
+
+function stepStars(t){
+  ctx.save();
+  ctx.fillStyle = '#ffe9f0';
+  for(const s of stars){
+    ctx.globalAlpha = .18 + .5*(.5 + .5*Math.sin(t*s.sp + s.ph));
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+}
+function stepDust(dt,t){
+  ctx.save();
+  ctx.fillStyle = '#ffd9e4';
+  for(const d of dust){
+    d.y -= d.v*dt;
+    if(d.y < -4){ d.y = H+4; d.x = Math.random()*W; }
+    ctx.globalAlpha = d.a*(.6 + .4*Math.sin(t + d.r*7));
+    ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+}
+function stepHearts(dt){
+  for(let i=hearts.length-1;i>=0;i--){
+    const h = hearts[i];
+    h.t += dt; h.y += h.vy*dt; h.rot += h.vr*dt;
+    let a = 1;
+    if(h.t < .7) a = h.t/.7;
+    if(h.y < H*.3) a = Math.max(h.y/(H*.3), 0);
+    if(h.y < -46 || a <= 0){ hearts.splice(i,1); continue; }
+    const x = h.bx + Math.sin(h.t*h.sw + h.ph)*h.amp;
+    drawHeart(x, h.y, h.s, h.rot, a, h.c, h.glow);
+  }
+}
+function stepBursts(dt){
+  for(let i=bursts.length-1;i>=0;i--){
+    const b = bursts[i];
+    b.t += dt;
+    if(b.t > b.max){ bursts.splice(i,1); continue; }
+    b.vy += b.g*dt;
+    b.vx *= Math.max(1-1.6*dt, 0); b.vy *= Math.max(1-1.1*dt, 0);
+    b.x += b.vx*dt; b.y += b.vy*dt; b.rot += b.vr*dt;
+    drawHeart(b.x, b.y, b.s, b.rot, 1-b.t/b.max, b.c, true);
+  }
+}
+function stepRipples(dt){
+  for(let i=ripples.length-1;i>=0;i--){
+    const r = ripples[i];
+    r.r += 320*dt; r.a -= 1.4*dt;
+    if(r.a <= 0){ ripples.splice(i,1); continue; }
+    ctx.save();
+    ctx.globalAlpha = r.a;
+    ctx.strokeStyle = '#ff9ebb'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
+}
+function stepShoot(dt){
+  shootIn -= dt;
+  if(!shoot && shootIn <= 0){
+    shoot = {x:rand(W*.1,W*.9), y:rand(0,H*.25),
+      vx:rand(500,800)*(Math.random()<.5?-1:1), vy:rand(180,320), t:0, max:rand(.7,1)};
+    shootIn = rand(6,12);
+  }
+  if(!shoot) return;
+  shoot.t += dt; shoot.x += shoot.vx*dt; shoot.y += shoot.vy*dt;
+  const a = 1 - shoot.t/shoot.max;
+  if(a <= 0){ shoot = null; return; }
+  const tail = .14;
+  const g = ctx.createLinearGradient(shoot.x, shoot.y, shoot.x-shoot.vx*tail, shoot.y-shoot.vy*tail);
+  g.addColorStop(0, 'rgba(255,240,245,'+(a*.9).toFixed(3)+')');
+  g.addColorStop(1, 'rgba(255,240,245,0)');
+  ctx.save();
+  ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(shoot.x, shoot.y);
+  ctx.lineTo(shoot.x-shoot.vx*tail, shoot.y-shoot.vy*tail);
+  ctx.stroke();
+  ctx.restore();
+}
+
+let last = performance.now(), acc = 0;
+function frame(now){
+  requestAnimationFrame(frame);
+  let dt = (now-last)/1000; last = now;
+  if(dt > .05) dt = .05;
+  if(dt <= 0) return;
+  const t = now/1000;
+  ctx.clearRect(0,0,W,H);
+  stepStars(t);
+  stepDust(dt,t);
+  /* 呼吸式频率：想念也有起伏 */
+  const rate = reduced ? .7 : 4.6 + 2.6*Math.sin(t*.22);
+  acc += rate*dt;
+  while(acc >= 1){ acc--; spawnHeart(); }
+  stepHearts(dt);
+  stepBursts(dt);
+  stepRipples(dt);
+  stepShoot(dt);
+}
+requestAnimationFrame(frame);
+document.addEventListener('visibilitychange', () => { last = performance.now(); });
+
+/* ================= 「想你想你」弹幕 ================= */
+const pops = $('#pops');
+const WORDS = ['想你','想你','想你','想你了','想你了','好想你','想你 ×∞','臭蒙','臭蒙','臭蒙臭蒙','臭蒙臭蒙臭蒙','miss you'];
+const MOMENTS = ['臭蒙！','想你！','超想臭蒙','臭蒙臭蒙臭蒙'];
+const VARIANTS = ['pop--glow','pop--script','pop--outline','pop--pill','pop--gold'];
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+
+function spawnPop(x, y, big, text){
+  if(pops.children.length > 110) return;
+  const el = document.createElement('div');
+  el.className = 'pop ' + (big ? 'pop--moment' : pick(VARIANTS));
+  el.textContent = text || (big ? pick(MOMENTS) : pick(WORDS));
+  el.style.left = clamp(x ?? rand(W*.06, W*.94), 44, W-44) + 'px';
+  el.style.top  = clamp(y ?? rand(H*.12, H*.85), 50, H-56) + 'px';
+  el.style.fontSize = (big ? rand(44,72) : rand(16,42)) + 'px';
+  el.style.setProperty('--r', rand(-14,14).toFixed(1)+'deg');
+  el.style.setProperty('--d', rand(3.2,4.4).toFixed(2)+'s');
+  pops.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+(function popLoop(){
+  if(!document.hidden){
+    spawnPop();
+    /* 三成概率成双成对地弹 */
+    if(Math.random() < .3) spawnPop();
+  }
+  setTimeout(popLoop, rand(80, 180));
+})();
+(function momentLoop(){
+  setTimeout(() => {
+    spawnPop(rand(W*.25, W*.75), rand(H*.18, H*.55), true);
+    momentLoop();
+  }, rand(4200, 7000));
+})();
+
+/* ================= 想你计时 & 心跳计数 ================= */
+const start = Date.now(), clockEl = $('#clock'), beatEl = $('#beat');
+const pad = n => String(n).padStart(2,'0');
+setInterval(() => {
+  const s = (Date.now()-start)/1000 | 0;
+  clockEl.textContent = pad(s/3600|0) + ':' + pad(s/60%60|0) + ':' + pad(s%60);
+}, 1000);
+setInterval(() => { beatEl.textContent = beat; }, 600);
+
+/* ================= 情话轮换 ================= */
+const QUOTES = [
+  '今晚的月亮很圆，但我更想你。',
+  '我的想念长了脚，一路跑向你。',
+  '风往哪边吹，我就往哪边想你。',
+  '数得清秒数，数不清你。',
+  '你一出现，人间就浪漫起来。',
+  '每一颗心，都是替我飞向你的。'
+];
+const quoteEl = $('#quote');
+let qi = 0;
+setInterval(() => {
+  quoteEl.classList.add('q-fade');
+  setTimeout(() => {
+    qi = (qi+1) % QUOTES.length;
+    quoteEl.textContent = QUOTES[qi];
+    quoteEl.classList.remove('q-fade');
+  }, 600);
+}, 5200);
+
+/* ================= 副标题逐字浮现 ================= */
+const sub = $('#sub');
+sub.dataset.text.split('').forEach((ch, i) => {
+  const s = document.createElement('span');
+  s.textContent = ch === ' ' ? '\u00A0' : ch;
+  s.style.setProperty('--i', i);
+  sub.appendChild(s);
+});
+
+/* ================= 交互 ================= */
+addEventListener('pointerdown', e => {
+  burst(e.clientX, e.clientY, 16);
+  spawnPop(e.clientX, e.clientY - 24, false, Math.random() < .3 ? '臭蒙' : '想你');
+});
+if(matchMedia('(pointer:fine)').matches && !reduced){
+  let lt = 0;
+  addEventListener('pointermove', e => {
+    const n = performance.now();
+    if(n - lt < 38) return;
+    lt = n;
+    trail(e.clientX, e.clientY);
+  });
+}
+
+/* 开场：帷幕落下后来一波集中表白 */
+setTimeout(() => {
+  burst(W/2, H*.42, 26);
+  spawnPop(W/2, H*.42, true, '臭蒙，我想你');
+}, 1900);
+setTimeout(() => {
+  for(let i=0;i<14;i++) setTimeout(() => spawnPop(rand(W*.28,W*.72), rand(H*.3,H*.62)), i*120);
+}, 2050);
+
+/* ================= 心跳音效（可选） ================= */
+const sBtn = $('#sound');
+let ac = null, on = false, loop = null;
+function thump(t, f, g){
+  const o = ac.createOscillator(), ga = ac.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(f, t);
+  o.frequency.exponentialRampToValueAtTime(f*.55, t+.14);
+  ga.gain.setValueAtTime(0, t);
+  ga.gain.linearRampToValueAtTime(g, t+.02);
+  ga.gain.exponentialRampToValueAtTime(.0001, t+.28);
+  o.connect(ga); ga.connect(ac.destination);
+  o.start(t); o.stop(t+.32);
+}
+sBtn.addEventListener('pointerdown', e => e.stopPropagation());
+sBtn.addEventListener('click', () => {
+  if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if(ac.state === 'suspended') ac.resume();
+  on = !on;
+  sBtn.classList.toggle('on', on);
+  if(on){
+    loop = setInterval(() => {
+      const t = ac.currentTime + .05;
+      thump(t, 52, .5); thump(t+.24, 44, .3);
+    }, 950);
+  } else {
+    clearInterval(loop);
+  }
+});
+
+/* 帷幕动画结束后移除节点 */
+const veil = $('#veil');
+veil.addEventListener('animationend', e => {
+  if(e.animationName === 'veilOut') veil.remove();
+});
+})();
+</script>
+</body>
+</html>
