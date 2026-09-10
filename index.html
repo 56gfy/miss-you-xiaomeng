@@ -186,7 +186,7 @@ body{
 .stats b{font-weight:400;color:var(--rose-2)}
 .hint{font-size:clamp(10px,1.4vw,12px);letter-spacing:.42em;text-indent:.42em;color:rgba(255,177,201,.4);font-weight:300}
 
-/* ---------- 心跳音效按钮 ---------- */
+/* ---------- 背景音乐按钮 ---------- */
 .sound{
   position:fixed;top:18px;right:18px;z-index:5;
   width:46px;height:46px;border-radius:50%;
@@ -270,10 +270,10 @@ body{
     <span>臭蒙 · 我已经想你了 <b id="clock">00:00:00</b></span>
   </div>
   <div class="stats">已为你弹出 <b id="beat">0</b> 颗心 · 想念仍在继续</div>
-  <div class="hint">轻点屏幕 · 把想念放出来</div>
+  <div class="hint">轻点屏幕 · 放出想念与音乐 ♪</div>
 </div>
 
-<button class="sound" id="sound" aria-label="心跳音效" title="点我 · 听心跳">
+<button class="sound" id="sound" aria-label="背景音乐" title="点我 · 开/关音乐">
   <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>
 </button>
 
@@ -559,6 +559,8 @@ sub.dataset.text.split('').forEach((ch, i) => {
 addEventListener('pointerdown', e => {
   burst(e.clientX, e.clientY, 16);
   spawnPop(e.clientX, e.clientY - 24, false, Math.random() < .35 ? pick(NAMES) : '想你');
+  if(!musicOn) startMusic();   // 首次触碰屏幕即响起音乐
+  chime();                     // 每次点击伴随星星音效
 });
 if(matchMedia('(pointer:fine)').matches && !reduced){
   let lt = 0;
@@ -579,9 +581,63 @@ setTimeout(() => {
   for(let i=0;i<14;i++) setTimeout(() => spawnPop(rand(W*.28,W*.72), rand(H*.3,H*.62)), i*120);
 }, 2050);
 
-/* ================= 心跳音效（可选） ================= */
+/* ================= 背景音乐 & 点击音效（Web Audio 实时合成） ================= */
 const sBtn = $('#sound');
-let ac = null, on = false, loop = null;
+let ac = null, musicOn = false, schedTimer = null, hbTimer = null;
+let masterGain = null, bus = null;
+const BAR = 3.2;                                  // 每小节 3.2 秒（约 75 bpm）
+const PROG = [                                    // C — G — Am — F 浪漫和弦进行
+  { bass:130.81, notes:[261.63,329.63,392.00,523.25] },
+  { bass: 98.00, notes:[246.94,293.66,392.00,493.88] },
+  { bass:110.00, notes:[220.00,261.63,329.63,440.00] },
+  { bass: 87.31, notes:[261.63,349.23,440.00,523.25] }
+];
+const CHIME = [1046.5,1174.7,1318.5,1568.0,1760.0];   // 点击音效：C 大调五声音阶
+let barIndex = 0, nextBar = 0;
+
+function initAudio(){
+  if(ac) return;
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = ac.createGain();
+  masterGain.gain.value = 0;
+  const comp = ac.createDynamicsCompressor();
+  masterGain.connect(comp); comp.connect(ac.destination);
+  bus = ac.createGain(); bus.gain.value = .8;
+  bus.connect(masterGain);
+  /* 梦幻回声 */
+  const delay = ac.createDelay(2);
+  delay.delayTime.value = .42;
+  const fb = ac.createGain(); fb.gain.value = .36;
+  delay.connect(fb); fb.connect(delay);
+  const wet = ac.createGain(); wet.gain.value = .5;
+  bus.connect(delay); delay.connect(wet); wet.connect(masterGain);
+}
+/* 八音盒音色：基频 + 泛音，长衰减 */
+function mbNote(freq, t, vel){
+  vel = vel ?? .16;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vel, t+.012);
+  g.gain.exponentialRampToValueAtTime(.0001, t+1.8);
+  g.connect(bus);
+  [[1,1],[2,.38],[3,.12],[4.01,.05]].forEach(([m,a]) => {
+    const o = ac.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = freq*m;
+    const og = ac.createGain(); og.gain.value = a;
+    o.connect(og); og.connect(g);
+    o.start(t); o.stop(t+1.9);
+  });
+}
+function bassNote(freq, t){
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(.11, t+.06);
+  g.gain.exponentialRampToValueAtTime(.0001, t+3);
+  o.connect(g); g.connect(bus);
+  o.start(t); o.stop(t+3.1);
+}
 function thump(t, f, g){
   const o = ac.createOscillator(), ga = ac.createGain();
   o.type = 'sine';
@@ -590,24 +646,58 @@ function thump(t, f, g){
   ga.gain.setValueAtTime(0, t);
   ga.gain.linearRampToValueAtTime(g, t+.02);
   ga.gain.exponentialRampToValueAtTime(.0001, t+.28);
-  o.connect(ga); ga.connect(ac.destination);
+  o.connect(ga); ga.connect(masterGain);
   o.start(t); o.stop(t+.32);
 }
-sBtn.addEventListener('pointerdown', e => e.stopPropagation());
-sBtn.addEventListener('click', () => {
-  if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+function scheduleBar(){
+  const ch = PROG[barIndex % PROG.length];
+  bassNote(ch.bass, nextBar);
+  const pat = [0,1,2,3,2,1,2,1];                 // 八分音符琶音
+  pat.forEach((p,i) => mbNote(ch.notes[p], nextBar + i*(BAR/8), p===3 ? .12 : .16));
+  if(Math.random() < .55) mbNote(ch.notes[3]*2, nextBar + (Math.random()<.5 ? BAR*.25 : BAR*.625), .06);
+  barIndex++;
+  nextBar += BAR;
+}
+function scheduler(){
+  if(!musicOn || !ac) return;
+  while(nextBar < ac.currentTime + 1.5) scheduleBar();
+}
+function startMusic(){
+  initAudio();
   if(ac.state === 'suspended') ac.resume();
-  on = !on;
-  sBtn.classList.toggle('on', on);
-  if(on){
-    loop = setInterval(() => {
-      const t = ac.currentTime + .05;
-      thump(t, 52, .5); thump(t+.24, 44, .3);
-    }, 950);
-  } else {
-    clearInterval(loop);
-  }
-});
+  musicOn = true;
+  const now = ac.currentTime;
+  masterGain.gain.cancelScheduledValues(now);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+  masterGain.gain.linearRampToValueAtTime(1, now + 2.2);        // 淡入
+  barIndex = 0;
+  nextBar = now + .15;
+  schedTimer = setInterval(scheduler, 350);
+  hbTimer = setInterval(() => {                                 // 音乐下面垫一层心跳
+    const t = ac.currentTime + .05;
+    thump(t, 52, .3); thump(t+.24, 44, .18);
+  }, 950);
+  sBtn.classList.add('on');
+}
+function stopMusic(){
+  musicOn = false;
+  clearInterval(schedTimer); clearInterval(hbTimer);
+  const now = ac.currentTime;
+  masterGain.gain.cancelScheduledValues(now);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+  masterGain.gain.linearRampToValueAtTime(0, now + .8);         // 淡出
+  sBtn.classList.remove('on');
+}
+/* 点击的星星音效：和爱心迸发同步 */
+function chime(){
+  if(!musicOn || !ac) return;
+  const f = pick(CHIME);
+  const t = ac.currentTime;
+  mbNote(f, t, .09);
+  if(Math.random() < .4) mbNote(f*2, t + .05, .035);
+}
+sBtn.addEventListener('pointerdown', e => e.stopPropagation());
+sBtn.addEventListener('click', () => { musicOn ? stopMusic() : startMusic(); });
 
 /* 帷幕动画结束后移除节点 */
 const veil = $('#veil');
