@@ -476,8 +476,9 @@ document.addEventListener('visibilitychange', () => { last = performance.now(); 
 
 /* ================= 「想你想你」弹幕 ================= */
 const pops = $('#pops');
-const WORDS = ['想你','想你','想你','想你了','想你了','好想你','想你 ×∞','臭蒙','臭蒙','臭蒙臭蒙','臭蒙臭蒙臭蒙','miss you'];
-const MOMENTS = ['臭蒙！','想你！','超想臭蒙','臭蒙臭蒙臭蒙'];
+const NAMES = ['臭蒙','蒙小景','小蒙','小景','臭小景','坏小蒙'];
+const WORDS = ['想你','想你','想你','想你了','想你了','好想你','想你 ×∞','miss you'];
+const MOMENTS = ['臭蒙！','蒙小景！','小景！','坏小蒙！','臭小景！','超想臭蒙','超想蒙小景','想你！'];
 const VARIANTS = ['pop--glow','pop--script','pop--outline','pop--pill','pop--gold'];
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 
@@ -485,7 +486,14 @@ function spawnPop(x, y, big, text){
   if(pops.children.length > 110) return;
   const el = document.createElement('div');
   el.className = 'pop ' + (big ? 'pop--moment' : pick(VARIANTS));
-  el.textContent = text || (big ? pick(MOMENTS) : pick(WORDS));
+  /* 一半概率弹名字，其中一部分还带上「想你」 */
+  let word;
+  if(big){ word = pick(MOMENTS); }
+  else{
+    const r = Math.random();
+    word = r < .42 ? pick(NAMES) : (r < .58 ? pick(NAMES) + '，想你' : pick(WORDS));
+  }
+  el.textContent = text || word;
   el.style.left = clamp(x ?? rand(W*.06, W*.94), 44, W-44) + 'px';
   el.style.top  = clamp(y ?? rand(H*.12, H*.85), 50, H-56) + 'px';
   el.style.fontSize = (big ? rand(44,72) : rand(16,42)) + 'px';
@@ -550,7 +558,7 @@ sub.dataset.text.split('').forEach((ch, i) => {
 /* ================= 交互 ================= */
 addEventListener('pointerdown', e => {
   burst(e.clientX, e.clientY, 16);
-  spawnPop(e.clientX, e.clientY - 24, false, Math.random() < .3 ? '臭蒙' : '想你');
+  spawnPop(e.clientX, e.clientY - 24, false, Math.random() < .35 ? pick(NAMES) : '想你');
 });
 if(matchMedia('(pointer:fine)').matches && !reduced){
   let lt = 0;
